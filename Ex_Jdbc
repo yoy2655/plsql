@@ -1,0 +1,23 @@
+
+public class Ex_JDBC {
+
+	public static void main(String[] args) {
+		/*
+		JDBC: Java DataBase Connectivity
+		 =>자바로 만든 애플리케이션이 데이터베이스에
+		 일관된 방식으로 접근할 수 있도록 API를 제공하는 클래스의 집합
+		 
+		 -자바 프로그램에서 데이터베이스를 사용하는 방법!!
+		 자바에서는 JDBC를 이용해 SQL을 오라클과 주고 받을 수 있다.
+		       (클래스, 인터페이스들의 묶음)
+		       
+		 =>JDBC프로그램을 만들기 4단계
+		 1) JDBC 드라이버 로드			 DriverManger
+		 2) 데이터베이스와 연결			 Connection
+		 3) SQL문 실행				 Statement
+		 4) 데이터베이스와 연결 끊음	결과물 ResultSet(결과값 반환받는 작업)
+		 */
+
+	}
+
+}
