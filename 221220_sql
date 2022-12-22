@@ -1,0 +1,385 @@
+--1.	상급자사원번호가 7698 또는 7839인 사원의 사원번호와 사원이름을 검색하라.
+select empno, ename from emp
+where mgr=7698 or mgr=7839;
+--2.	사원직무가 ‘MANAGER’ 또는 ‘SALESMAN’인 사원의 사원번호, 사원이름, 부서번호를 검색하라.
+select empno, ename, deptno from emp
+where job='MANAGER' or job='SALESMAN';
+--3.	사원들의 사원번호와 사원이름을 사원번호 순으로 검색하라.
+select empno, ename from emp
+order by empno;
+--4.	사원들의 사원번호와 사원이름을 부서번호별 이름순으로 검색하라.
+select empno, ename from emp
+order by deptno, ename;
+--5.	사원들의 정보를 부서별 급여가 많은 순으로 검색하라.
+select * from emp
+order by deptno, sal desc;
+--6.	사원들의 정보를 사원직무별 급여 순으로 검색하라.
+select * from emp
+order by job,sal;
+--7.	사원들의 정보를 부서번호별, 사원직무별, 급여 순으로 검색하라('순으로'는 order by이용)
+select * from emp
+order by deptno, job, sal;
+--8.	사원들의 사원이름을 소문자로 검색하라.
+select lower(ename) from emp;
+--9.	사원들의 사원이름, 사원직무를 소문자로 검색하라.
+select lower(ename), lower(job) from emp;
+--10.	사원들의 사원이름을 대문자로 검색하라.
+select upper(ename) from emp;
+--11.	사원들의 사원이름, 사원직무를 대문자로 검색하라.
+select upper(ename), upper(job) from emp;
+--12.	사원들의 사원이름을 첫자만 대문자로 검색하라.
+select initcap(ename) from emp;
+--13.	사원들의 사원이름과 사원직무를 첫 자만 대문자로 검색하라.
+select initcap(ename), initcap(job) from emp;
+--14.	사원들의 사원이름과 사원직무를 연결하여 검색하라.(concat이용)
+select concat(ename, job) from emp;
+--15.	사원들의 사원이름과 사원이름의 첫 두글자를 검색하라.
+select ename, substr(ename,1,2) from emp;
+--16.	사원들의 사원이름, 사원직무 그리고 사원직무의 두번째부터 세글자를 검색하라.
+select ename, job, substr(job, 2, 3) from emp;
+--17.	사원들의 사원이름과 사원이름의 길이를 검색하라.
+select ename, length(ename) from emp;
+--18.	사원들의 사원이름과 사원직무의 자리수를 검색하라.
+select ename, length(job) from emp;
+--19.	사원들의 사원이름에 ‘A’가 몇번 째 위치에 있는지 검색하라.
+select instr(ename,'A') from emp;
+--20.	사원직무에 ‘A’가 몇번 째 위치에 있는지 검색하라.
+select instr(job, 'A') from emp;
+
+--사원이름을 15자리로 하고, 뒤에 '&'를 채워 검색하라.
+select rpad(ename, 15, '&') from emp;
+
+--사원직무를 20자리로 하고, 앞에 '%'를 채워 검색하라.
+select lpad(job, 20, '%') from emp;
+
+--사원의 사원번호, 사원이름, 급여를 검색하라.(급여는 두번째 자리에서 반올림함)
+select empno, ename, round(sal,-2) from emp;
+
+--사원의 사원번호, 사원이름, 급여를 검색하라.(급여는 두번째 자리에서 절삭함)
+select empno, ename, trunc(sal, -2) from emp;
+
+--사원번호와 급여를 100으로 나눈 나머지를 검색하라.
+select empno, mod(sal,100) from emp;
+
+--사원번호, 사원이름, 입사일, 입사후 100일의 날짜를 검색하라.
+select empno, ename, hiredate as 입사, hiredate+100 as 입사100일 from emp;
+
+--사원번호, 사원이름, 입사일, 근무일자를 계산하여 검색하라.
+select empno, ename, hiredate, trunc(sysdate-hiredate) from emp;
+
+--사원들의 입사일에서 3달째 되는 날짜를 검색하라.
+select add_months(hiredate, 3) from emp;
+
+--사원들의 입사일다음 토요일의 날짜를 검색하라.
+select next_day(hiredate, '토요일') from emp;
+
+--사원들의 입사월의 마지막 날짜를 검색하라.
+select last_day(hiredate) from emp;
+
+--부서별 사원들의 평균 급여를 검색하라. 
+select deptno, avg(sal) from emp
+group by deptno;
+
+--부서별 사원들의 급여의 표준편차를 검색하라.
+select deptno, stddev(sal) from emp group by deptno;
+
+--부서별 사원직무별 사원의 급여 합을 검색하라.
+select deptno, job, sum(sal) from emp group by deptno, job;
+
+--부서별 사원직무별 사원들의 평균 급여를 검색하라
+select deptno, job, avg(sal) from emp group by deptno, job;
+
+--부서별 사원직무별 사원들의 입사일이 MAX와 MIN값을 검색하라
+select deptno, job, max(hiredate) as 나중에들어옴, min(hiredate) as 먼저들어옴 from emp
+group by deptno, job;
+
+--부서별 사원들의 인원수를 인원수가 많은 순으로 검색하라
+select deptno, count(*) as 내림차순 from emp 
+group by deptno
+order by deptno desc;
+
+--부서별 사원들의 평균 급여를 평균 급여 순으로 검색하라.
+select deptno, round(avg(sal)) as avg_sal from emp
+group by deptno
+order by avg_sal;
+
+--부서별, 사원직무별 사원의 급여 합을 많은 순으로 검색하라
+select deptno, job, sum(sal) from emp
+group by deptno, job
+order by sum(sal) desc;
+
+--부서별, 사원직무별 사원들의 평균 급여를 평균 급여가 많은 순으로 검색하라
+select deptno, job, avg(sal) as avg_sal from emp
+group by deptno, job
+order by avg_sal desc;
+
+--사원들의 입사일을 년을 기준으로 반올림하여 검색하라.(반올림이 되어서 1월1일로 나온다)
+select hiredate, round(hiredate, 'yyyy') from emp;
+
+--사원들의 입사일을 년을 기준으로 절삭하여 검색하라. (절삭이 되어서 1월1일로 나온다)
+select hiredate, trunc(hiredate, 'yyyy') from emp;
+
+--상급자사원번호(mgr)가 없는 사원의 경우 '상급자 없음'을 나타내도록 하는 질의문을 작성해라
+select mgr, nvl(to_char(mgr), '상급자 없음') from emp;
+
+--커미션(comm)을 합한 급여를 사원번호, 사원이름과 함꼐 검색하라.
+select comm, sal, empno, ename, nvl(comm, 0)+sal as 수당포함급여 from emp;
+
+--커미션을 포함한 연봉을 사원번호, 사원이름과 함께 검색하라.
+select comm, sal, empno, ename, (nvl(comm,0)+sal)*12 as 연봉 from emp;
+
+
+
+--join
+--등가조인=이퀴조인=내부조인
+--1)등가조인 where s.stu_no=en.stu_no;
+--2)natural join
+--3)join~using
+--4)join~on(거의 안씀)
+
+select s.stu_no, stu_name, stu_dept, enr, grade
+from student s, enrol en
+where s.stuno=en.stu_no;
+
+select stu_no, stu_name, stu_dept, enr_grade
+from student s natural join enrol en;
+
+select stu_no,stu_name, stu_dept, enr_grade
+from student join enrol using(stu_no);
+
+select student.stu_no, stu_name, stu_dept, enr_grade
+from student join enrol on student.stu_no=enrol.stu_no;
+
+--학생테이블과 수강테이블을 natural join하라.
+select * 
+from student natural join enrol;
+
+--과목이름과 학번, 점수를 검색하라.(natural join 사용)
+select sub_name, stu_no, enr_grade
+from subject natural join enrol;
+
+--과목이름과 학번, 점수를 검색하라.(join~using사용)
+select sub_name, stu_no, enr_grade
+from subject join enrol using(sub_no);
+
+--점수가 70점 이상인 학생 이름을 검색하라(equi join)
+select stu_name
+from student, enrol
+where student.stu_no=enrol.stu_no and enr_grade>=70;
+
+--점수가 60점 이상인 학생 이름을 검색하라.(join~using)
+select stu_name
+from student join enrol using(stu_no)
+where enr_grade>= 60;
+
+--점수가 70점 이하인 학생 이름을 검색하라(natural join)
+select stu_name 
+from student natural join enrol
+where enr_grade<=70;
+
+--강종영 교수가 강의하는 과목을 수강하는 학생의 이름을 검색하라.(equi join)
+select stu_name 
+from student, enrol, subject
+where student.stu_no=enrol.stu_no and enrol.sub_no=subject.sub_no and sub_prof='강종영';
+
+--컴퓨터개론을 수강하는 학생들의 학번과 이름을 검색하라.(equi join)
+select student.stu_no, stu_name 
+from student, enrol, subject
+where student.stu_no=enrol.stu_no and enrol.sub_no=subject.sub_no and sub_name='컴퓨터개론';
+
+--사원 테이블과 부서테이블을 natural join해라
+select *
+from emp natural join dept;
+
+--사원번호, 사원이름, 부서이름을 검색하라.(equi)
+select empno, ename, dname
+from emp, dept
+where emp.deptno=dept.deptno;
+
+--사원번호, 사원이름, 부서이름을 검색하라(natural)
+select empno, ename, dname from dept natural join emp;
+
+--사원번호, 사원이름, 부서이름을 검색하라(join~using)
+select empno, ename, dname
+from emp join dept using(deptno);
+
+--지역이 NEW YORK인 사원이름을 검색하라(equi)
+select ename 
+from emp, dept
+where emp.deptno=dept.deptno and dept.loc='NEW YORK' ;
+
+--1. ADAMS사원이 근무 중인 부서이름과 지역을검색하라.(equi join)
+select dname, loc
+from emp, dept
+where emp.deptno=dept.deptno and ename='ADAMS';
+--2. 급여가 2000이상인 사원들의 사원명과 지역을검색하라. (natural join)
+select ename, loc
+from emp natural join dept
+where sal>=2000;
+--3. 2번을equi join으로 바꿔라.
+select ename, loc
+from emp, dept
+where emp.deptno=dept.deptno and sal>=2000;
+--4. 급여가 1000 이상 2000 이하인 사원들의 사원번호, 사원이름, 부서이름을 사원번호순으로 검색하라. (join using)
+select empno, ename, dname 
+from emp join dept using(deptno)
+where sal between 1000 and 2000
+order by empno;
+--5. 사원직무가 SALESMAN이면서 CHICAGO 지역에 근무 중인 사원명을 검색하라.
+select ename 
+from emp, dept
+where emp.deptno=dept.deptno and job='SALESMAN' and loc='CHICAGO';
+
+--6. NEW YORK이나 DALLAS 지역에 근무하는 사원들의 사원번호와 사원이름을 사원번호 순으로 검색하라. (equi join)
+select empno, ename
+from emp, dept
+where emp.deptno=dept.deptno and loc in ('NEW YORK', 'DALLAS')
+order by empno;
+--6. NEW YORK이나 DALLAS 지역에 근무하는 사원들의 사원번호와 사원이름을 사원번호 순으로 검색하라. (equi join)
+select empno, ename
+from emp, dept
+where emp.deptno=dept.deptno and (loc ='NEW YORK' or loc='DALLAS')
+order by empno;
+
+--7. 부서이름이 ACCOUNTING이거나, 지역이 CHICAGO인 사원의 사원번호와 사원이름을 검색하라. (equi join
+select empno, ename
+from emp, dept
+where emp.deptno=dept.deptno and (dname='ACCOUNTING' or loc='CHICAGO');
+--8. NEW YORK이나 DALLAS 지역에 근무하는 사원들의 사원번호와 사원이름을 사원번호 순으로 검색하라. (natural join)
+select empno, ename
+from emp natural join dept
+where loc in ('NEW YORK', 'DALLAS')
+order by empno;
+
+--101 또는 102번 과목을 수강하는 학생들의 학번 이름(equi join)
+--and가 or연산자보다 우선한다.
+select student.stu_no, stu_name
+from student, enrol
+where student.stu_no=enrol.stu_no and sub_no in(101, 102);
+
+--101 또는 102번 과목을 수강하는 학생들의 학번 이름(natural join)
+select stu_no, stu_name
+from student natural join enrol
+where sub_no in(101, 102);
+
+--자체조인
+select a.empno as 사원번호, a.ename as 사원이름, b.empno as 상급자사원번호, b.ename as 상급자이름
+from emp a, emp b
+where a.mgr=b.empno;
+
+--enrol테이블에 있는 모든 데이터 행 다 출력
+select a.*, sub_name
+from enrol a, subject b
+where a.sub_no=b.sub_no
+order by 1;
+--order by 1: 1열(sub_no 기준으로 정렬)
+--order by 2: 2열(stu_no 기준으로 정렬)
+--order by 3: 3열(enr_grade 기준으로 정렬)
+--order by 4: 4열(sub_name 기준으로 정렬)
+
+--과목테이블도 다 출력하고 싶다(외부조인)
+select a.*, sub_name
+from enrol a right outer join subject b
+on a.sub_no=b.sub_no
+order by 1;
+--right outer join : 조인문의 오른쪽에 있는 테이블의 모든 결과를 가져온 후
+--                   왼쪽 테이블의 데이터를 매칭하고 매칭되는 데이터가 없으면 NULL표시한다.
+--(오른쪽꺼 다 가져오고 왼쪽에 NULL 표시)
+
+select * from subject;
+
+--
+select a.*, sub_name
+from enrol a left outer join subject b
+on a.sub_no=b.sub_no
+order by 1;
+--(왼쪽꺼 다 가져오고 오른쪽에 NULL표시)
+--출력 : NULL값 안나옴
+
+--옥성우 키가 몇인지 검색
+select stu_name, stu_height from student
+where stu_name='옥성우';
+
+--옥성우보다 키큰 학생의 모든 이름 검색
+select stu_name
+from student
+where stu_height>(select stu_height
+                from student
+                where stu_name='옥성우');
+                
+--박희철이랑 같은 몸무게를 가지고 있는 학생의 모든 정보 검색
+select * 
+from student
+where stu_weight=(select stu_weight
+                 from student
+                 where stu_name='박희철') and stu_name <>'박희철';
+                 
+                 
+--키가 전체 학생들의 평균 키 보다 큰 학생 (서브쿼리)
+select *
+from student
+where stu_height >(select avg(stu_height)
+                    from student); 
+                 
+select *
+from student
+where stu_class in (select stu_class 
+                    from student 
+                    where stu_dept='컴퓨터정보') and stu_dept<>'컴퓨터정보';
+
+--BLAKE 사원보다 많은 급여를 받는 사원이름을 검색하라. (부질의)
+select ename from emp
+where sal > (select sal
+            from emp
+            where ename='BLAKE');
+            
+--FORD 사원과 같은 부서에 근무하는 사원이름을 검색하라. (부질의)
+select ename from emp
+where deptno =(select deptno
+                from emp
+                where ename='FORD');
+                
+--11. FORD 사원과 같은 급여를 받는 사원의 사원번호를 검색하라. (부질의)
+select empno from emp where sal=(select sal
+                                from emp
+                                where ename='FORD');
+--12. 부서이름이 ‘SALES’이면서 사원직무가 ‘MANAGER’인 사원의 사원번호, 사원이름을 사원이름 순으로 검색하라. (natural join)
+select empno, ename
+from emp natural join dept
+where job ='MANAGER' and dname ='SALES'
+order by ename;
+--13. SCOTT 사원보다 많은 급여를 받는 사원 정보를검색하라. (부질의)
+select *
+from emp
+where sal >(select sal
+            from emp
+            where ename='SCOTT');
+--14. ALLEN 사원보다 적은 급여를 받는 사원 정보를검색하라. (부질의)
+select * 
+from emp 
+where sal < (select sal
+            from emp
+            where ename='ALLEN');
+--15. 전체 사원의 평균 급여보다 급여가 많은 사원 정보를 검색하라. (부질의)
+select * 
+from emp 
+where sal >(select avg(sal)
+            from emp);
+--16. CHICAGO 지역에 위치하는 부서에 근무하는사원 정보를 검색하라. (부질의)
+select *
+from emp
+where deptno = (select deptno
+                from dept
+                where loc='CHICAGO');
+                
+create table t_student
+as select * from student where stu_dept='기계';
+
+select * from t_student;
+select * from student;
+desc t_student;
+
+alter table t_student add army char(1);
+alter table t_student modify army number;   --army 구조 변경
+alter table t_student drop(army);   --SYS에 의해 소유된 테이블에서 열을 삭제할 수 없습니다.
+
