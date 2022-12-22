@@ -1,3 +1,20 @@
+--PL/SQL (Procedural Language edtension to SQL : sql을 확장한 절차적 언어)
+--:관계형 데이터베이스에서 사용되는 오라클 엑세스 언어
+--:PL/SQL블록을 보내면 서버쪽에서 블록을 받아 PROCEDURAL을 나눈다.
+--:프로그램 종류 : procedure, function, trigger
+
+
+--저장 프로시저(Stored Prodecure)
+--:프로그래머가 생성해 놓은 쿼리문을 
+--마치 하나의 메소드 형식으로 관리하는 것
+--=>서버에 저장해놓고 주기적으로 반복해서 사용
+
+--OR REPLACE: 이미 같은 이름의 프로시저가 
+--	    존재하는 경우 기존의 프로시저 내용을
+--	    지우고 새로운 내용으로 바꿔준다.
+
+
+
 --
 SET SERVEROUTPUT ON;
 BEGIN 
