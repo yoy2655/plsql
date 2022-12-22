@@ -235,3 +235,80 @@ BEGIN
 /
 EXECUTE TEST5('PL/SQL','홍길동',3,'컴퓨터정보');
 SELECT * FROM SUBJECT;
+
+DROP SEQUENCE SEQ1;
+
+CREATE TABLE CUST(
+C_NO NUMBER(3) NOT NULL,
+C_NAME VARCHAR2(10),
+C_FLAG NUMBER(1),
+C_ADDR VARCHAR2(20),
+C_PHONE VARCHAR2(20),
+CONSTRAINT C_NO_PK PRIMARY KEY(C_NO));
+
+insert into cust values(101,'김진수',1,'서울 성북구','02-455-5544');
+insert into cust values(102,'김영희',2,'서울 강서구','02-299-2565');
+insert into cust values(103,'이영수',3,'서울 서초구','02-555-5555');
+insert into cust values(104,'김진숙',1,'서울 동대문구','02-444-4444');
+
+CREATE TABLE VIDEO(
+V_NO NUMBER(1) NOT NULL,
+CONSTRAINT PK_V_NO PRIMARY KEY(V_NO),
+V_NAME VARCHAR2(20),
+V_ACTOR VARCHAR2(20),
+V_GROUP VARCHAR2(20));
+
+insert into video values(1,'극한직업','류승룡 이하늬','코미디');
+insert into video values(2,'기생충','송강호','드라마');
+insert into video values(3,'엑시트','조정석 윤아','코미디');
+insert into video values(4,'봉오동전투','유해진','액션');
+insert into video values(5,'나쁜녀석들','마동석','액션');
+insert into video values(6,'82년생김지영','정유미 공유','드라마');
+
+CREATE TABLE RENT(
+R_NO NUMBER(1) CONSTRAINT PK_RENT PRIMARY KEY,
+R_DATE DATE,
+C_NO NUMBER(3) CONSTRAINT C_NO_FK REFERENCES CUST(C_NO),--부모:CUST, 자식:RENT
+R_RENTFEE NUMBER(5),
+V_NO NUMBER(1) CONSTRAINT V_NO_FK REFERENCES VIDEO(V_NO));
+
+
+insert into rent values(1,'2020-07-30',101,1000,1);
+insert into rent values(2,'2020-07-30',101,500,2);
+insert into rent values(3,'2020-08-2',103,500,5);
+insert into rent values(4,'2020-08-2',102,1000,6);
+insert into rent values(5,'2020-08-2',102,1000,3);
+insert into rent values(6,'2020-08-3',104,2000,2);
+
+
+--고객 테이블의 구조를 검색해라. (3점)
+DESC CUST;
+--고객 테이블의 고객이름, 등급, 주소를 검색해라. (3점)
+SELECT C_NAME,C_FLAG,C_ADDR FROM CUST;
+--비디오이름과 고객번호, 반납일을 equi join, natural join, join~using을 다 써서 검색해라. (10점)
+--EQUI JOIN
+SELECT V_NAME, C_NO, R_DATE
+FROM VIDEO,RENT
+WHERE VIDEO.V_NO=RENT.V_NO;
+--NATURAL JOIN
+SELECT V_NAME,C_NO,R_DATE
+FROM VIDEO NATURAL JOIN RENT;
+--JOIN~USING
+SELECT V_NAME,C_NO,R_DATE
+FROM VIDEO JOIN RENT USING(V_NO);
+--이영수 고객이 대여한 비디오이름과 주연배우를 검색해라. (equi join) (3점)
+SELECT V_NAME,V_ACTOR
+FROM VIDEO,RENT,CUST
+WHERE VIDEO.V_NO=RENT.V_NO AND RENT.C_NO=CUST.C_NO AND C_NAME='이영수';
+--기생충을 대여한 고객들의 고객번호와 이름을 검색해라. (3점)
+SELECT CUST.C_NO,C_NAME
+FROM CUST, RENT, VIDEO
+WHERE CUST.C_NO=RENT.C_NO AND RENT.V_NO=VIDEO.V_NO AND V_NAME='기생충';
+--등급이 1등급인 고객이 대여한 비디오 이름을 모두 검색해라. (3점)
+SELECT V_NAME
+FROM VIDEO, RENT,CUST
+WHERE CUST.C_NO=RENT.C_NO AND VIDEO.V_NO=RENT.V_NO AND C_FLAG=1;
+--대여료가 2000원 이상인 고객의 수를 검색해라. (3점)
+SELECT COUNT(*)
+FROM CUST, RENT
+WHERE CUST.C_NO=RENT.C_NO AND R_RENTFEE>=2000;
