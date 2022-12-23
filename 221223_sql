@@ -1,0 +1,395 @@
+create or replace function test8
+(v_enr_grade in number)
+return char --함수를 실행한 후 반환값에 대한 자료형 선언
+
+is
+    enr_score char;
+begin
+    if v_enr_grade >= 90 then enr_score:='A';
+    elsif v_enr_grade >= 80 then enr_score:='B';
+    elsif v_enr_grade >= 70 then enr_score:='C';
+    end if;
+    return (enr_score);
+    
+end test8;
+/
+
+variable d_score char;
+execute :d_score:=test8(95);
+print d_score;
+
+
+
+SET SERVEROUTPUT ON
+DECLARE
+   V_NO EMP.EMPNO%TYPE;
+   V_ENAME EMP.ENAME%TYPE;
+   V_DEPTNO EMP.DEPTNO%TYPE;
+   V_DNAME VARCHAR(20);
+    
+BEGIN
+    SELECT EMPNO,ENAME,DEPTNO
+    INTO V_NO,V_ENAME,V_DEPTNO
+    FROM EMP
+    WHERE EMPNO=7698;
+    
+    IF(V_DEPTNO=10) THEN
+        V_DNAME:='관리부';
+        
+        ELSIF(V_DEPTNO=20) THEN
+        V_DNAME:='마케팅부';
+        
+        ELSIF(V_DEPTNO=30) THEN
+        V_DNAME:='IT개발부';
+        
+        END IF;
+        
+        DBMS_OUTPUT.PUT_LINE(V_NO||' '||V_DNAME);      
+END;
+/   --끝표시(생략가능)
+
+--패키지 명세
+CREATE PACKAGE PACK1
+IS
+PROCEDURE TEST2
+(V_STU_NO IN STUDENT.STU_NO%TYPE,
+V_STU_GRADE IN STUDENT.STU_GRADE%TYPE);
+
+FUNCTION TEST8(V_ENR_GRADE IN NUMBER) RETURN CHAR;
+END;
+/
+
+--패키지 본체
+CREATE PACKAGE BODY PACK1
+IS
+PROCEDURE TEST2
+(V_STU_NO IN STUDENT.STU_NO%TYPE,
+V_STU_GRADE IN STUDENT.STU_GRADE%TYPE)
+IS
+IS
+BEGIN
+    UPDATE STUDENT
+    SET STU_GRADE=V_STU_GRADE
+    WHERE STU_NO=V_STU_NO;
+END TEST2;
+
+FUNCTION TEST8(V_ENR_GRADE IN NUMBER) RETURN CHAR
+IS
+    enr_score char;
+begin
+    if v_enr_grade >= 90 then enr_score:='A';
+    elsif v_enr_grade >= 80 then enr_score:='B';
+    elsif v_enr_grade >= 70 then enr_score:='C';
+    end if;
+    return (enr_score);
+END TEST8;
+END;
+/
+
+SELECT * FROM STUDENT;
+EXECUTE TEST2(20153075,2);
+
+VARIABLE D_SCORE CHAR;
+EXECUTE :D_SCORE:=TEST8(95);
+
+PRINT D_SCORE;
+
+--예외처리
+CREATE PROCEDURE TEST111
+(V_STU_NO IN student.stu_no%TYPE)
+IS
+    V_STU_NAME student.stu_name%TYPE;
+    
+BEGIN
+    SELECT STU_NAME INTO V_STU_NAME
+    FROM STUDENT
+    WHERE STU_NO=V_STU_NO;
+    DBMS_OUTPUT.PUT_LINE(V_STU_NAME);
+    
+    EXCEPTION 
+        WHEN NO_DATA_FOUND THEN
+           DBMS_OUTPUT.PUT_LINE('해당 데이터가 존재하지 않는다');
+END TEST111;
+/
+
+SELECT *FROM STUDENT;
+EXECUTE TEST111(20153088);
+EXECUTE TEST111(12345678);  
+
+SELECT * FROM STUDENT;
+EXECUTE TEST111(20153088);
+--예외 메시지 안나옴
+EXECUTE TSET111(12345678);
+
+--데이터 타입이 안맞아서 오류 발생 -> V_WORNG은 DATE타입이라서 NAME이 못들어감..
+DECLARE
+    V_WRONG DATE;
+BEGIN
+    SELECT ENAME INTO V_WRONG
+    FROM EMP
+    WHERE EMPNO=7369;
+    DBMS_OUTPUT.PUT_LINE('예외가 발생하면 다음 문장은 실행되지 않습니다');
+    
+    EXCEPTION 
+        WHEN OTHERS THEN
+          DBMS_OUTPUT.PUT_LINE('오류 발생'||TO_CHAR(SYSDATE, '[YYYY "년" MM "월" DD "일"]'));
+    
+END;
+/
+
+
+CREATE PROCEDURE TEST22
+(V_SUB_NO IN ENROL.SUB_NO%TYPE)
+IS
+    V_CNT NUMBER;
+    CNT_ERROR EXCEPTION;
+    
+BEGIN
+    SELECT COUNT(STU_NO) INTO V_CNT
+    FROM ENROL
+    WHERE SUB_NO=V_SUB_NO;
+    DBMS_OUTPUT.PUT_LINE(V_SUB_NO || '과목 수강자는' || V_CNT || '명');
+    
+    IF V_CNT=0 THEN
+        RAISE CNT_ERROR;    --ERROR를 발생시키겠다..
+    END IF;
+    
+EXCEPTION
+    WHEN CNT_ERROR THEN
+        DBMS_OUTPUT.PUT_LINE('수강학생 없다');
+END TEST22;
+/
+SELECT * FROM ENROL;
+EXECUTE TEST22(102);
+EXECUTE TEST22(200);
+
+--EMP 테이블에서 Z가 들어가는 사원번호 출력
+
+--PL/SQL 짜세요
+--Z들어가는 이름 없으면 예외처리 ..
+DECLARE
+    V_NO EMP.EMPNO%TYPE;
+BEGIN
+    SELECT EMPNO INTO V_NO
+    FROM EMP
+    WHERE ENAME LIKE '%Z%';
+     DBMS_OUTPUT.PUT_LINE('Z가 들어가는 사원번호는 ' || V_NO );
+     
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN  
+    DBMS_OUTPUT.PUT_LINE('Z가 들어가는 사원이 없습니다');
+    
+END;
+/
+SELECT * FROM EMP;
+
+create table t_tbl(
+t_empno number(4) NOT NULL,
+t_ename varchar2(40),
+t_job varchar2(9),
+t_mgr number(4),
+t_hiredate date,
+t_sal number(7,2),
+t_comm number(7,2),
+t_deptno number(2),
+constraint t_tbl_pk primary key(t_empno));
+
+DESC T_TBL;
+
+insert into t_tbl values('3333','SMITH','CLERK',7902,to_date('1980-12-17','yyyy-mm-dd'),800,null,20);
+SELECT * FROM T_TBL;
+
+CREATE TABLE EMP1 AS (SELECT * FROM EMP);
+
+--EMP1테이블로부터 부서번호 20인 데이터만 뽀아 T_TBL테이블에 삽입
+INSERT INTO T_TBL
+SELECT * 
+FROM EMP1
+WHERE DEPTNO=20 AND NOT EMPNO=7369;
+
+SELECT * FROM T_TBL;
+
+create table t_tbl10(
+t_empno number(4) NOT NULL,
+t_ename varchar2(40),
+t_job varchar2(9),
+t_mgr number(4),
+t_hiredate date,
+t_sal number(7,2),
+t_comm number(7,2),
+t_deptno number(2),
+constraint t_tbl10_pk primary key(t_empno));
+
+--EMP1테이블로부터 부서번호 10인 데이터만 뽑아 T_TBL10테이블에 삽입
+INSERT INTO T_TBL10 
+SELECT * 
+FROM EMP1 
+WHERE DEPTNO=10;
+
+SELECT * FROM T_TBL;
+SELECT * FROM T_TBL10;
+
+--T_TBL에 성별(GENDER)열 삽입 데이터 타입은 CHAR(!)
+ALTER TABLE T_TBL ADD GENDER CHAR(1);
+DESC T_TBL;
+
+--GENDER를 VARCHAR2(10);
+ALTER TABLE T_TBL MODIFY GENDER VARCHAR2(10);
+
+--GENDER열 삭제
+ALTER TABLE T_TBL DROP(GENDER);
+
+--T_TBL테이블에 모든 데이터 삭제
+TRUNCATE TABLE T_TBL;
+SELECT * FROM T_TBL;
+
+
+create table t_emp2(
+t_empno number(4) NOT NULL,
+t_ename varchar2(40),
+t_job varchar2(9),
+t_mgr number(4),
+t_hiredate date,
+t_sal number(7,2),
+t_comm number(7,2),
+t_deptno number(2) 
+constraint t_emp2_fk references dept(deptno),
+constraint t_emp2_pk primary key(t_empno));
+
+SELECT * FROM T_EMP2;
+
+--T_EMP2테이블에 외래 키 제약조건을 비활성화
+ALTER TABLE T_EMP2
+DISABLE CONSTRAINT T_EMP2_FK;
+
+--다시 활성화
+ALTER TABLE T_EMP2
+ENABLE CONSTRAINT T_EMP2_FK;
+
+--외래 키 제약 조건 삭제
+ALTER TABLE T_EMP2 
+DROP CONSTRAINT T_EMP2_FK;
+
+--T_EMP2 삭제
+DROP TABLE T_EMP2;
+
+
+DROP TABLE EMP01;
+--1.	emp 테이블을 복사하여 emp01 이라는 테이블을 생성해라.
+CREATE TABLE EMP01 AS (SELECT * FROM EMP);
+--2.	emp01 테이블의 모든 데이터를 삭제시키는 프로시저를 생성해라. (프로시저: all_del)
+CREATE OR REPLACE PROCEDURE ALL_DEL
+IS
+BEGIN
+    DELETE FROM EMP01;
+END ALL_DEL;
+/
+
+EXECUTE ALL_DEL;
+SELECT * FROM EMP01;
+--3.	2번에서 지웠던 데이터들을 다시 1번처럼 복구해라.
+ROLLBACK;
+--4.	emp01 테이블의 사원이름과 같은 타입인 v_ename을 선언하여 이름에 ‘M’이 들어간 사원들을 다 삭제하는 프로시저를 생성하라.(프로시저: del_name)
+--V_ENAME IN EMP01.ENAME%TYPE 사용
+CREATE OR REPLACE PROCEDURE DEL_NAME
+(V_ENAME EMP01.ENAME%TYPE)
+IS
+BEGIN
+    DELETE FROM EMP01 WHERE ENAME LIKE V_ENAME;
+END DEL_NAME;
+/
+
+EXECUTE DEL_NAME('%M%');
+
+--5.	emp01 테이블에 있는 사원번호(empno)와 입력한 사원번호값이 같은 사원이름(ename)과 월급(sal), 직무(job)를 검색하는 프로시저를 생성하라.(프로시저: search_pro)
+--단, 받는 변수를 바인드 변수로 설정하여 프로시저를 실행시켜라.
+--사원번호는 7844로 입력해라.
+CREATE OR REPLACE PROCEDURE SEARCH_PRO
+(V_EMPNO IN EMP01.EMPNO%TYPE,
+V_ENAME OUT EMP01.ENAME%TYPE,
+V_SAL OUT EMP01.SAL%TYPE,
+V_JOB OUT EMP01.JOB%TYPE)
+IS
+BEGIN
+    SELECT ENAME,SAL,JOB INTO V_ENAME,V_SAL,V_JOB
+    FROM EMP01
+    WHERE EMPNO=V_EMPNO;
+    DBMS_OUTPUT.PUT_LINE('이름'||V_ENAME||'월급'||V_SAL||'직무'||V_JOB);
+END SEARCH_PRO;
+/
+VARIABLE D_ENAME VARCHAR2(20);
+VARIABLE D_SAL NUMBER;
+VARIABLE D_JOB VARCHAR2(20);
+EXECUTE SEARCH_PRO(7844,:D_ENAME,:D_SAL,:D_JOB);
+PRINT D_ENAME;
+PRINT D_SAL;
+PRINT D_JOB;
+SELECT * FROM EMP01;
+
+
+
+--EMP1테이블로부터 20번 부서의 사원들로 이루어져있는 뷰 생성
+CREATE OR REPLACE VIEW V_EMP20
+AS (SELECT * FROM EMP1 WHERE DEPTNO=20);
+    
+SELECT * FROM V_EMP20;
+
+--EMPNO,ENAME,DNAME을 가지는 뷰 생성 V_EMP_DEPT(JOIN활용) -이퀴조인
+CREATE OR REPLACE VIEW V_EMP_DEPT
+AS 
+(SELECT E.EMPNO,E.ENAME,D.DNAME 
+FROM EMP1 E,DEPT1 D 
+WHERE E.DEPTNO=D.DEPTNO);
+
+SELECT * FROM V_EMP_DEPT;
+
+--ROWNUM을 추가로 조회하기
+SELECT ROWNUM,E.*
+FROM EMP E;
+
+--EMP 테이블을 SAL 열 기준으로 정렬하기
+SELECT ROWNUM,E.*
+FROM EMP E
+ORDER BY SAL DESC;
+
+--인라인 뷰(서브쿼리 사용)
+SELECT ROWNUM,E.*
+FROM (SELECT * 
+        FROM EMP E 
+        ORDER BY SAL DESC) E;
+
+--인라인 뷰로 TOP-N 추출하기(서브쿼리 사용)
+SELECT ROWNUM,E.*
+FROM (SELECT *
+        FROM EMP E
+        ORDER BY SAL DESC) E
+WHERE ROWNUM <= 3;
+
+--가장 최근에 입사한 5명의 EMPNO, ENMAE, HIREDATE
+SELECT EMPNO,ENAME,HIREDATE
+FROM (SELECT EMPNO,ENAME,HIREDATE FROM EMP E ORDER BY HIREDATE DESC) E
+WHERE HIREDATE IS NOT NULL AND ROWNUM<=5;
+
+--급여와 커미션을 합한 금액으로 상위7명의 EMPNO,ENAME 검색
+SELECT EMPNO,ENAME,SAL+NVL(COMM,0)
+FROM (SELECT EMPNO,ENAME,SAL,COMM
+        FROM EMP
+        ORDER BY SAL+NVL(COMM,0) DESC)
+WHERE ROWNUM<=7;
+
+DELETE FROM EMP WHERE ENAME='Bob';
+DELETE FROM EMP WHERE ENAME='히히히';
+SELECT * FROM EMP;
+
+--부서별 평균 급여가 가장 높은 부서 2개의 부서이름 뽑기
+--조인, AVG, GROUP BY, ORDER BY, ROWNUM
+SELECT DNAME
+FROM (SELECT DNAME, AVG(SAL) 
+        FROM DEPT, EMP 
+        WHERE EMP.DEPTNO=DEPT.DEPTNO
+        GROUP BY DNAME
+        ORDER BY 2) --2는 AVG(SAL)
+WHERE ROWNUM<=2;
+
+
+
