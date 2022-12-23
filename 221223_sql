@@ -391,5 +391,59 @@ FROM (SELECT DNAME, AVG(SAL)
         ORDER BY 2) --2는 AVG(SAL)
 WHERE ROWNUM<=2;
 
+--커서 사용(명시적 커서)
+--p.462 (DECLARE 사용_여기서는 프로시저 사용함)
+SET SERVEROUTPUT ON;
+CREATE OR REPLACE PROCEDURE TEST7
+IS
+V_STU_NO ENROL.STU_NO%TYPE;
+V_SUB_NO ENROL.SUB_NO%TYPE;
+V_ENR_GRADE ENROL.ENR_GRADE%TYPE;
+
+--1.명시적 커서 선언
+CURSOR T_CURSOR IS
+    SELECT STU_NO,SUB_NO,ENR_GRADE
+    FROM ENROL
+    WHERE SUB_NO=105;
+    
+BEGIN
+--2.커서열기
+    OPEN T_CURSOR;
+    LOOP
+        --3.커서로부터 읽어온 데이터 가져옴
+        FETCH T_CURSOR INTO V_STU_NO,V_SUB_NO,V_ENR_GRADE;
+        EXIT WHEN T_CURSOR%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE(V_STU_NO|| ' '||V_SUB_NO||' '||V_ENR_GRADE);
+    END LOOP;
+    --4.커서 닫음
+    CLOSE T_CURSOR;
+    END TEST7;
+/
+EXECUTE TEST7;
 
 
+DECLARE
+    --커서 데이터가 입력될 변수 선언
+    V_ROW EMP%ROWTYPE;
+    
+    --1. 명시적 커서 선언
+    CURSOR T_CURSOR IS 
+        SELECT * FROM EMP;
+BEGIN
+    --2.커서열기
+    OPEN T_CURSOR;
+    LOOP
+        --3.커서로부터 읽어온 데이터 가져옴
+    FETCH T_CURSOR INTO V_ROW;
+    EXIT WHEN T_CURSOR%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE(V_ROW.EMPNO||' '||V_ROW.ENAME);
+    END LOOP;
+    
+    --4.커서 닫음
+    CLOSE T_CURSOR;
+    
+    END;
+/
+
+
+SELECT* FROM EMP;
