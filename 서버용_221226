@@ -1,0 +1,298 @@
+create table dept(
+deptno number(2)
+constraint pk_dept primary key,
+dname VARCHAR2(14),
+loc VARCHAR2(13));
+
+insert into dept values(10,'ACCOUNTING', 'NEW YORK');
+insert into dept values(20,'RESEARCH', 'DALLAS');
+insert into dept values(30,'SALES','CHICAGO');
+insert into dept values(40,'OPERATIONS', 'BOSTON');
+
+insert into dept values(50, 'IT', 'SEOUL');
+
+create or replace trigger tri4
+after
+delete on dept
+for each row
+begin
+    insert into dept values(':old.deptno,:old.dname,:old.loc);
+end tri4;
+
+delete from dept where deptno=50;
+
+create table dept_delete(
+empno number(10),
+ename varchar2(10),
+sal number(10));
+
+
+create table emp(
+empno number(4)
+constraint pk_emp primary key,
+ename VARCHAR2(10),
+job VARCHAR2(9),
+mgr NUMBER(4),
+hiredate date,
+sal number(7,2),
+comm number(7,2),
+deptno number(2));
+
+insert into emp values(7839,'KING','PRESIDENT',NULL,to_date('17-11-1981','dd-mm-yyyy'),5000,NULL,10);
+insert into emp values(7566,'JONES','MANAGER',7839,to_date('2-4-1981','dd-mm-yyyy'),2975,NULL,20);
+insert into emp values(7698,'BLAKE','MANAGER',7839,to_date('1-5-1981','dd-mm-yyyy'),2850,NULL,30);
+insert into emp values(7782,'CLARK','MANAGER',7839,to_date('9-6-1981','dd-mm-yyyy'),2450,NULL,10);
+insert into emp values(7788,'SCOTT','ANALYST',7566,to_date('13-07-1987','dd-mm-yyyy'),3000,NULL,20);
+insert into emp values(7902,'FORD','ANALYST',7566,to_date('3-12-1981','dd-mm-yyyy'),3000,NULL,20);
+insert into emp values(7499,'ALLEN','SALESMAN',7698,to_date('20-2-1981','dd-mm-yyyy'),1600,300,30);
+insert into emp values(7521,'WARD','SALESMAN',7698,to_date('22-2-1981','dd-mm-yyyy'),1250,500,30);
+insert into emp values(7654,'MARTIN','SALESMAN',7698,to_date('28-9-1981','dd-mm-yyyy'),1250,1400,30);
+insert into emp values(7844,'TURNER','SALESMAN',7698,to_date('8-9-1981','dd-mm-yyyy'),1500,0,30);
+insert into emp values(7900,'JAMES','CLERK',7698,to_date('3-12-1981','dd-mm-yyyy'),950,NULL,30);
+insert into emp values(7934,'MILLER','CLERK',7782,to_date('23-1-1982','dd-mm-yyyy'),1300,NULL,10);
+insert into emp values(7369,'SMITH','CLERK',7902,to_date('17-12-1980','dd-mm-yyyy'),800,NULL,20);
+insert into emp values(7876,'ADAMS','CLERK',7788,to_date('13-07-1987','dd-mm-yyyy'),1100,NULL,20);
+
+create table dept_delete(
+empno number(10),
+ename varchar2(10),
+sal number(10));
+
+create or replace trigger tri5
+after delete on emp
+for each row
+begin
+insert into dept_delete values(:old.empno, :old.ename, :old.sal);
+end;
+/
+
+delete from emp where empno=7788;
+select * from dept_delete;
+
+create table emp500(
+empno number(4),
+ename varchar2(10),
+workdate date);
+--사원테이블에 사원이 추가삽입될 때
+--연봉이 5000보다 크면 emp500테이블에 추가삽입된 사원번호, 사원이름, 날짜를 삽입하는 트리거 작성
+create or replace trigger tri6
+after 
+insert on emp
+for each row
+begin 
+    if :new.sal>5000 then
+    insert into emp500 values(:new.empno,:new.ename,sysdate);
+    end if;
+end tri6;
+/
+
+
+select * from emp;
+insert into emp values('1111','guest1','student',7839,sysdate,5600,null,10);
+insert into emp values('2222','guest2','student',7839,sysdate,4600,null,10);
+
+select * from emp500;
+
+
+//
+--<상품정보 테이블>
+create table product(
+p_code char(3) not null,
+p_name varchar2(30),
+p_cost number,
+p_group varchar2(30),
+constraint product_pk primary key(p_code)
+);
+
+insert into product values('101','19인치 모니터',150000,'모니터');
+insert into product values('102','22인치 모니터',200000,'모니터');
+insert into product values('103','25인치',260000,'모니터');
+insert into product values('201','유선마우스',7000,'마우스');
+insert into product values('202','무선마우스',18000,'마우스');
+insert into product values('301','유선키보드',8000,'키보드');
+insert into product values('302','무선키보드',22000,'키보드');
+insert into product values('401','2채널 스피커',10000,'스피커');
+insert into product values('402','5.1채널 스피커',120000,'스피커');
+
+--<거래내역 테이블>
+create table trade(
+t_seq number not null,
+p_code char(3),
+c_code varchar2(4),
+t_date date,
+t_qty number,
+t_cost number,
+t_tax number,
+constraint trade_pk primary key(t_seq)
+);
+
+insert into trade
+values (61,'131','101',to_date('2016-04-01','yyyy-mm-dd'),10,150000,150000);
+insert into trade
+values (5,'102','102',to_date('2016-04-26','yyyy-mm-dd'),8,200000,160000);
+insert into trade
+values (8,'103','101',to_date('2016-05-20','yyyy-mm-dd'),2,260000,52000);
+insert into trade
+values (3,'201','103',to_date('2016-04-13','yyyy-mm-dd'),7,7000,4900);
+insert into trade
+values (2,'201','101',to_date('2016-04-12','yyyy-mm-dd'),5,7000,3500);
+insert into trade
+values (9,'202','104',to_date('2016-06-02','yyyy-mm-dd'),8,18000,14400);
+insert into trade
+values (6,'301','103',to_date('2016-05-02','yyyy-mm-dd'),12,8000,9600);
+insert into trade
+values (10,'302','103',to_date('2016-06-09','yyyy-mm-dd'),9,22000,19800);
+insert into trade
+values (4,'401','104',to_date('2016-04-20','yyyy-mm-dd'),15,10000,15000);
+insert into trade
+values (11,'401','105',to_date('2016-06-15','yyyy-mm-dd'),20,10000,20000);
+insert into trade
+values (7,'402','102',to_date('2016-05-08','yyyy-mm-dd'),5,120000,60000);
+
+--<거래처 정보 테이블>
+create table customer(
+c_code varchar2(4) not null,
+c_name varchar2(30),
+c_ceo varchar2(12),
+c_addr varchar2(100),
+c_phone varchar2(13),
+constraint custromer_pk primary key(c_code)
+);
+
+insert into customer values('101','늘푸른회사','김수종','경기도 안산시','010-1234-5678');
+insert into customer values('102','사랑과바다','박나리','경기도 평택시','010-1122-3344');
+insert into customer values('103','대한회사','이민수','서울시 구로구','010-3785-8809');
+insert into customer values('104','하얀기판','허진수','경상북도 포항시','010-8569-3468');
+insert into customer values('105','한마음한뜻','하민우','인천시 남동구','010-9455-6033');
+
+--<상품 재고 테이블>
+create table stock(
+p_code char(3) not null,
+s_qty number not null,
+s_lastdate date,
+constraint stock_pk1 primary key(p_code,s_qty)
+);
+
+insert into stock values('101',50,to_date('2016-04-1','yyyy-mm-dd'));
+insert into stock values('102',20,to_date('2016-04-26','yyyy-mm-dd'));
+insert into stock values('103',5,to_date('2016-05-20','yyyy-mm-dd'));
+insert into stock values('201',2,to_date('2016-04-13','yyyy-mm-dd'));
+insert into stock values('202',15,to_date('2016-06-02','yyyy-mm-dd'));
+insert into stock values('301',0,to_date('2016-05-02','yyyy-mm-dd'));
+insert into stock values('302',20,to_date('2016-06-09','yyyy-mm-dd'));
+insert into stock values('401',10,to_date('2016-06-15','yyyy-mm-dd'));
+insert into stock values('402',7,to_date('2016-05-08','yyyy-mm-dd'));
+
+//
+--1.	상품 정보(product)테이블에 열 이름이 ‘비고’ 라는 열을 varchar2(20)으로 삽입해라.
+alter table product add bigo varchar2(20);
+--2.	1번에서 삽입한 열이 상품 정보(product)테이블에 삽입되었는지 확인해라.
+desc product;
+--3.	상품 정보(product)테이블에 ‘비고’ 열의 구조를 char(3)으로 변경해라.
+alter table product modify bigo char(3);
+--4.	상품코드 401에 대한 거래내역 뷰(v_trade)를 만들어라.
+create or replace view v_trade 
+as (select * from trade where p_code=401);
+--5.	상품 정보(product)테이블에 가장 최근에 들어온 거래처 코드 정보를 검색해라(top-n질의)
+select p2.c_code
+from product p, (select p_code, c_code, t_date from trade order by t_date desc) p2
+where p.p_code=p2.p_code and rownum<=1;
+--★6.	상품을 삽입하는 프로시저를 생성해라. 
+--(이미 p_code가 들어있다 부분은 예외처리 시켜라.) -> 기본키 신경쓰지 말고 이미 들어있는 데이터면 예외처리 시켜라. 
+-- execute p_pro(‘101’, ’7.1채널 스피커’, 180000, ‘스피커’);
+--       이미 p_code가 들어있다.
+
+--출력하기 위해 써줘야 한다.
+set serveroutput on;    
+create or replace procedure p_pro
+(v_p_code in product.p_code%type,
+v_p_name in product.p_name%type,
+v_p_cost in product.p_cost%type,
+v_p_group in product.p_group%type)
+is
+v_cnt number;
+cnt_error exception;
+begin
+    select count(*) into v_cnt
+    from product
+    where p_code=v_p_code;
+    
+    if v_cnt>0 then
+    raise cnt_error;
+    end if;
+    
+    insert into product (p_code, p_name, p_cost, p_group)
+    values (v_p_code, v_p_name, v_p_cost, v_p_group);
+
+    commit;
+    dbms_output.put_line('완료되었다');
+    
+exception
+    when cnt_error then
+    dbms_output.put_line('이미 p_code가 들어있다.');
+end p_pro;
+/
+
+
+execute p_pro('101', '7.1채널 스피커', 180000, '스피커');
+execute p_pro('403', '7.1채널 스피커', 180000, '스피커');
+select * from product;
+--execute p_pro(‘403’, ’7.1채널 스피커’, 180000, ‘스피커’);
+--    완료되었다.
+
+     
+--7.	product_del 테이블을 만들어라.
+create table product_del
+(u_id varchar2(10),
+wdate date,
+p_code number(6),
+p_name varchar2(30),
+p_cost number,
+p_group varchar2(30));
+
+--8.	7번을 한 후, 상품 삭제 시(product테이블에서) product_del 테이블에 삽입이 이루어지는 트리거를 작성해라.
+--p_code , p_name , p_cost , p_group은 기존 product테이블에 있는 값으로 삽입해라.
+CREATE OR REPLACE TRIGGER tri7
+AFTER
+delete ON product
+
+FOR EACH ROW
+BEGIN
+INSERT INTO product_del VALUES('hong',sysdate,:old.p_code,:old.p_name,:old.p_cost,:old.p_group);
+END tri7;
+/
+
+delete from product where p_code='201';
+select * from product;
+select * from product_del;
+
+-9.	Emp, dept, salgrade테이블로 작업해라.
+--(없으면 카페에 “부서, 사원, 급여 테이블” 복붙해서 생성하기)
+create table salgrade(
+grade number(7,2),
+losal number(7,2),
+hisal number(7,2));
+insert into salgrade values(1,700,1200);
+insert into salgrade values(2,1201,1400);
+insert into salgrade values(3,1401,2000);
+insert into salgrade values(4,2001,3000);
+insert into salgrade values(5,3001,9999);
+
+--★9-1. 부서번호를 입력하면 부서에 근무하는 모든 사원들의 사원번호, 사원이름, 사원직무가 화면에 출력되며, 사원직무를 입력하면 사원번호, 사원이름, 부서이름이 화면에 출력되는 프로시저를 같은 이름으로 작성하여 한 패키지로 구성해라.
+--예외 처리
+--1. 입력된 부서번호가 테이블에 없을 경우 “부서번호가 잘못 입력되었다”
+--2. 입력된 사원직무가 테이블에 없을경우 “사원직무가 잘못 입력되었다”를 출력
+-- execute pack1_01.pro1_01(15);
+--부서번호가 잘못 입력되었다
+
+--execute pack1_01.pro1_01(10);
+--7839 
+--KING PRESIDENT
+--7782 
+--CLARK MANAGER
+--7934 
+--MILLER CLERK
+
+-- execute pack1_01.pro1_01(‘DIRECTOR’);
+--사원직무가 잘못 입력되었다
+
