@@ -340,63 +340,46 @@ begin
     end pro1_01;
     
     
+procedure pro1_01
+(v_job in emp.job%type)
+is
+    cursor cur is
+    select empno,ename,deptno
+    from emp
+    where job=v_job;
+c_empno emp.empno%type;
+c_ename emp.ename%type;
+v_cnt number;
+no_job exception;
+
+begin
+    select count(*) into v_cnt
+    from emp
+    where job=v_job;
     
---여기서부터 퍼옴
-CREATE OR REPLACE PACKAGE pack1 IS
-PROCEDURE pro1(v_deptno IN emp.deptno%TYPE);
-PROCEDURE pro1(v_job IN emp.job%TYPE);
-END pack1;
+    if v_cnt=0 then
+    raise no_job;
+    end if;
+    
+    open cur;
+    loop
+        fetch cur into c_empno,c_ename,c_deptno;
+        exit when cur%notfound;
+        dbms_output.put_line(c_empno||' '||c_ename||' '||c_deptno);
+        end loop;
+           
+    exception
+    when no_job then
+    dbms_output.put_line('사원직무가 잘못 입력되었다');
+    end pro1_01;
+
+end;
+
 /
 
+ 
 
-CREATE OR REPLACE PACKAGE BODY pack1 AS
-PROCEDURE pro1(v_deptno IN emp.deptno%TYPE) IS
-v_empno emp.empno%TYPE;
-v_ename emp.ename%TYPE;
-v_job emp.job%TYPE;
-CURSOR cur IS
-SELECT empno, ename, job
-FROM emp
-WHERE deptno = v_deptno;
-BEGIN
-SELECT empno INTO v_empno FROM emp WHERE deptno = v_deptno AND ROWNUM <= 1;
-OPEN cur;
-LOOP
-FETCH cur INTO v_empno, v_ename, v_job;
-EXIT WHEN cur%NOTFOUND;
-DBMS_OUTPUT.PUT_LINE(v_empno || ' ' || v_ename || ' ' || v_job);
-END LOOP;
-CLOSE cur;
-EXCEPTION
-WHEN NO_DATA_FOUND THEN
-DBMS_OUTPUT.PUT_LINE('부서번호가 잘못 입력되었다');
-END;
+execute pack1_01.pro1_01(15);
 
-PROCEDURE pro1(v_job IN emp.job%TYPE) IS
-v_empno emp.empno%TYPE;
-v_ename emp.ename%TYPE;
-v_deptno emp.deptno%TYPE;
-v_dname dept.dname%TYPE;
-CURSOR cur IS
-SELECT empno, ename, deptno
-FROM emp
-WHERE job = v_job;
-BEGIN
-SELECT empno INTO v_empno FROM emp WHERE job = v_job AND ROWNUM <= 1;
-OPEN cur;
-LOOP
-FETCH cur INTO v_empno, v_ename, v_deptno;
-EXIT WHEN cur%NOTFOUND;
-SELECT dname INTO v_dname FROM dept WHERE deptno = v_deptno;
-DBMS_OUTPUT.PUT_LINE(v_empno || ' ' || v_ename || ' ' || v_dname);
-END LOOP;
-CLOSE cur;
-EXCEPTION
-WHEN NO_DATA_FOUND THEN
-DBMS_OUTPUT.PUT_LINE('사원직무가 잘못 입력되었다');
-END;
-END pack1;
-/
-
-EXECUTE pack1.pro1(10);
-EXECUTE pack1.pro1('MANAGER');
+execute pack1_01.pro1_01(‘DIRECTOR’);
+   
