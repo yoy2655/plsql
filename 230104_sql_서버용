@@ -1,0 +1,230 @@
+--1,2,3.
+create table patient(
+p_no number(10) not null,
+p_name varchar2(20),
+p_grade number(10),
+p_adr varchar2(50),
+p_phone varchar2(50),
+p_dept varchar2(50),
+CONSTRAINT p_no_pk primary key(p_no)
+);
+
+create table hospital(
+h_no number(10) not null,
+h_name varchar2(20),
+h_dept varchar2(50),
+CONSTRAINT h_no_pk primary key(h_no)
+);
+
+create table en(
+e_no number(10) not null,
+e_date date,
+p_no number(10)
+constraint p_no_fk references patient(p_no),
+e_price number(30),
+e_rentfee number(30),
+h_no number(10)
+constraint h_no_fk references hospital(h_no),
+CONSTRAINT pk_rent primary key(e_no)
+);
+
+drop table en;
+drop table patient;
+drop table hospital;
+
+insert into patient values(1001,'김철수',1,'서울 송파구','02-455-5544','내과');
+insert into patient values(1002,'김민혁',2,'서울 강서구','02-299-2565','이비인후과');
+insert into patient values(1003,'양종현',3,'서울 서초구','02-555-5555','소아과');
+insert into patient values(1004,'김진숙',1,'서울 강남구','02-444-4444','소아과');
+insert into patient values(1005,'최현철',3,'서울 은평구','02-123-4544','정형외과');
+insert into patient values(1006,'박민재',3,'서울 강동구','02-442-4844','안과');
+
+​
+
+insert into hospital values(1,'김영철','내과');
+insert into hospital values(2,'이다해','소아과');
+insert into hospital values(3,'김사라','소아과');
+insert into hospital values(4,'연아람','정형외과');
+insert into hospital values(5,'고광훈','안과');
+insert into hospital values(6,'이승철','이비인후과');
+
+
+insert into en values(1,'2022-06-06',1001,250000,605,1);
+insert into en values(2,'2022-06-30',1003,570000,303,2);
+insert into en values(3,'2022-07-02',1006,550000,201,5);
+insert into en values(4,'2022-07-01',1002,830000,204,6);
+insert into en values(5,'2022-07-02',1005,300000,345,4);
+insert into en values(6,'2022-07-03',1004,500000,602,2);
+
+--4.
+desc hospital;
+
+--5.
+select p_name, p_grade, p_adr
+from patient;
+
+--6.
+select h_name||h_dept
+from hospital;
+
+--7.    양종현 환자가 등록한 의사 이름과 병원과를 검색해라. (equi join)
+select h_name,h_dept
+from patient, en, hospital
+where patient.p_no=en.p_no and hospital.h_no=en.h_no and patient.p_name='양종현';
+--8.	소아과를 등록한 환자들의 환자번호와 이름을 검색해라. 
+select patient.p_no,patient.p_name
+from patient, en, hospital
+where patient.p_no=en.p_no and hospital.h_no=en.h_no and patient.p_dept='소아과';
+--9.	등급이 1등급인 환자가 등록한 의사 이름을 모두 검색해라. 
+select hospital.h_name
+from patient, en, hospital
+where patient.p_no=en.p_no and hospital.h_no=en.h_no and patient.p_grade=1;
+--10.	금액이 50만원 이상인 환자의 수를 검색해라.
+select count(*)
+from patient, en
+where patient.p_no=en.p_no and en.e_price>=500000;
+--11.	환자번호가 1003 이외의 환자이름과 주소를 검색해라.
+select p_name, p_adr
+from patient
+where p_no not in(1003);
+--12.	금액이 50만원 이상이고 201호에 입원한 환자들의 번호와 과 번호를 검색해라.
+select patient.p_no,en.h_no
+from patient, en
+where patient.p_no=en.p_no and en.e_price>=500000 and e_rentfee=201;
+--13.	환자이름이 김씨 성을 가진 환자들을 검색해라.
+select patient.p_no, patient.p_name
+from patient
+where patient.p_name like '김%';
+--14.	병원과가 소아과나 내과인 의사이름을 검색해라.
+select hospital.h_name
+from hospital
+where hospital.h_dept in ('소아과','내과');
+--16.	등급이 3인 환자들만 선택하여 등록한 병원과로 그룹화하고 그룹별 환자수를 구한다.
+select p_dept,count(*)
+from patient
+where p_grade=3
+group by p_dept;
+--17.	김민혁 환자가 등록한 의사 이름과 등록한 병원과를 검색하는데 equi join, natural join, join~using을 각각 사용해라.
+--equi join
+select hospital.h_name,hospital.h_dept
+from patient, en, hospital
+where patient.p_no=en.p_no and hospital.h_no=en.h_no and patient.p_name='김민혁';
+--natural join
+select hospital.h_name,hospital.h_dept
+from hospital natural join (select *
+from en natural join patient
+where patient.p_name='김민혁');
+--join~using
+select hospital.h_name,hospital.h_dept
+from hospital join (select *
+from en join patient using(p_no)
+where patient.p_name='김민혁') 
+using(h_no);
+--18.	이승철 교수가 진료하는 병원과에 등록한 환자이름을 검색해라.
+select patient.p_name
+from patient, en, hospital
+where patient.p_no=en.p_no and hospital.h_no=en.h_no and hospital.h_name='이승철';
+--19.	이비인후과에 등록한 환자들의 환자번호와 이름을 검색해라.
+select p_no, p_name
+from patient
+where p_dept='이비인후과';
+
+--여기서부터  a_en테이블을 조작해라--
+(20~ 26번까지)
+--20.	환자번호가 1004보다 작은 값만 나오도록 등록 테이블을 복사하여 a_en 테이블을 만든다. (5점)
+create table a_en as (select * from en where p_no<1004);
+
+--21.	위에서 만든 테이블에 (7, 2022-07-01, 1007, 70,000, 202, 3)을 삽입한다. 
+insert into a_en values(7, '2022-07-01', 1007, 70000, 202, 3);
+--22.	 ‘10’ 으로 시작하는 환자번호를 a_en 테이블에 삽입한후, 내용을 확인해라. 
+insert into a_en 
+select *
+from en
+where p_no like '10%';
+--23.	환자번호가 1001일 때 대여료를 1000원씩 증가시켜 변경해라.
+update a_en 
+set e_price=e_price+1000
+where p_no=1001;
+--24.	등록번호 3에 금액을 5만원씩 증가시켜라.
+update a_en
+set e_price=e_price+50000
+where e_no=3;
+--25.	이비인후과 금액을 3만원 증가시켜라.
+update a_en
+set e_price=e_price+30000
+where a_en.h_no=(select hospital.h_no 
+from hospital where hospital.h_dept='이비인후과');
+--26.	병원과가 소아과인 데이터들의 뷰를 생성해라.
+create or replace view v_a_en
+as (select * 
+from hospital
+where h_dept='소아과');
+--27.	등록 테이블에서 금액이 큰 상위 5명의 환자번호, 입원실을 검색해라.(금액은 큰 순서대로 출력)
+select p_no, e_rentfee 
+from a_en
+where rownum<=5
+order by e_price;
+--28.	환자번호와 환자이름을 입력하여 해당 환자의 환자이름을 수정하는 프로시저를 만들어라.
+--(프로시저명은 pa, 환자번호는 1003으로 입력하고, 환자이름을 이철수로 수정)
+create or replace procedure pa
+(v_p_no in patient.p_no%type,
+v_p_name in patient.p_name%type)
+is
+begin
+update patient
+set p_name=v_p_name
+where p_no=v_p_no;
+
+end pa;
+/
+select * from patient;
+execute pa(1003, '이철수');
+
+--29.	과번호와 환자번호를 입력받아 환자의 금액을 할인해주고 결과를 출력하는 프로시저 만들어라. (프로시저명: discount) 
+---> 임의의 값으로 할인
+create or replace procedure discount
+(v_h_no in a_en.h_no%type,
+v_p_no in a_en.p_no%type,
+v_e_price in out a_en.e_price%type)
+is
+begin
+update a_en
+set e_price=e_price-v_e_price
+where h_no=v_h_no and p_no=v_p_no;
+
+end discount;
+/
+select * from a_en;
+variable d_e_price number
+begin
+:d_e_price:=74000;
+end;
+/
+execute discount(6,1002,:d_e_price);
+print d_e_price;
+select * from a_en;
+--30.	과번호가 1일 때 환자번호와 금액을 구해라. (커서 사용)
+set serveroutput on;
+create or replace procedure test1
+
+is
+cursor cur is
+select p_no,e_price
+from a_en
+where h_no=1;
+
+v_p_no a_en.p_no%type;
+v_e_price a_en.e_price%type;
+
+begin
+open cur;
+loop
+fetch cur into v_p_no,v_e_price;
+exit when cur%notfound;
+dbms_output.put_line(v_p_no||' '||v_e_price);
+end loop;
+close cur;
+end test1;
+/
+execute test1;
+
